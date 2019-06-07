@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Routing</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+        integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+        crossorigin=""></script>
+
+    <script src="a-star.js"></script>
+
+    <style>
+        #mapid {
+            height: 90vh;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="mapid"></div>
+
+    <script>
+        let ab = true;
+        let aid = -1;
+        let bid = -1;                
+        const mymap = L.map('mapid').setView([47.5886000, 12.1804000], 16);    
+        const line = L.polyline([], {color: 'red'}).addTo(mymap);            
+        const a = L.marker([0, 0]).addTo(mymap);
+        const b = L.marker([1, 1]).addTo(mymap);
+
+        mymap.setMaxBounds([
+            [47.5644000, 12.1487000],
+            [47.6033000, 12.1898000]
+        ]);
+
+        mymap.on('click', (e) => {
+            let nn = nearestNeighbour(e.latlng["lat"], e.latlng["lng"]); 
+            
+            if (ab) {
+                a.setLatLng(nn);
+                aid = nn.id;
+                ab = false;
+            } else {
+                b.setLatLng(nn);
+                bid = nn.id;
+                ab = true;
+            }
+
+            if (aid > 0 && bid > 0) {
+                let path = constructPath(astar(aid, bid));
+                line.setLatLngs(path);
+            }
+        });
+
+        L.tileLayer('http://{s}.wien.gv.at/basemap/bmaporthofoto30cm/normal/google3857/{z}/{y}/{x}.jpeg', {
+            attribution: '',
+            maxZoom: 17,
+            subdomains: ["maps1", "maps2", "maps3", "maps4"]
+        }).addTo(mymap);
+
+        fetch("/map.json")
+            .then(response => response.json())
+            .then(data => {
+                localStorage.setItem("data", JSON.stringify(data.nodes));
+                for (let k in data.nodes) {
+                    let node = data.nodes[k];         
+                    localStorage.setItem(k, JSON.stringify(node));
+                }                
+            });
+    </script>
+</body>
+
+</html>
