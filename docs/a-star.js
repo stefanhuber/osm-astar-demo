@@ -31,8 +31,17 @@ function astar(startId, goalId) {
         lon: data[startId].lon
     }];
     let visited = new Set();
-    
+
+    let iterations = 0;
+
+    let nodes = Object.keys(data).length;
+
     while (true) {
+        if (++iterations > nodes) {
+            console.info('No path between the two selected nodes');
+            return null;
+        }
+
         let current = queue.shift();
 
         if (current.id == goalId) {
@@ -41,13 +50,20 @@ function astar(startId, goalId) {
             visited.add(current.id);
             let children = getChildren(current, goalId, data);
 
+            let changedQueue = false;
+
             for (let child of children) {
                 if (!visited.has(child.id)) {
                     queue.push(child);
+                    changedQueue = true;
                 }
             }
 
             if (queue.length > 0) {
+                // Prevent queue sort if nothing changed
+                // Not within the first 50 Iterations to not prevent a 'initial' sort
+                if (!changedQueue && iterations > 50) continue;
+
                 queue.sort((a, b) => {
                     if (a.cost < b.cost) {
                         return -1;
