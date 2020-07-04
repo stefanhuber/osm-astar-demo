@@ -14,6 +14,6 @@ fs.readFile("./map.osm", (err, data) => {
             nodes: nodes
         }
 
-        fs.writeFileSync("./map.json", JSON.stringify(data));
+        fs.writeFileSync("./docs/map.json", JSON.stringify(data));
     });
 });

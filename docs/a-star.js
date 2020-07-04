@@ -49,9 +49,9 @@ function astar(startId, goalId) {
 
             if (queue.length > 0) {
                 queue.sort((a, b) => {
-                    if (a < b) {
+                    if (a.cost < b.cost) {
                         return -1;
-                    } else if (a > b) {
+                    } else if (a.cost > b.cost) {
                         return 1;
                     } else {
                         return 0;
