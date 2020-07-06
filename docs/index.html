@@ -22,7 +22,6 @@
         }
     </style>
 </head>
-
 <body>
 
     <div id="mapid"></div>
@@ -79,32 +78,33 @@
             .then(response => response.json())
             .then(data => {
                 localStorage.setItem("data", JSON.stringify(data.nodes));
-                
+
                 let l = 0;
                 for (let k in data.nodes) l++;
 
                 document.getElementById('nodes').textContent = `${l} nodes in the map`;                
             });
 
-        let circles = [];
-        document.getElementById('toggle-nodes').addEventListener('click', () => {
+
+        (() => {
             let data = JSON.parse(localStorage.getItem('data'));
 
-            if (circles.length == 0) {
-                for(let key in data) {
-                    let circle = L.circle([data[key].lat, data[key].lon], {radius: 1});
-                    circles.push(circle);
-                    circle.addTo(mymap);
-                }
-            } else {
-                for (let c of circles) {
-                    c.remove();
-                }
-                circles = [];
+            let circles = [];
+            for (let key in data) {
+                if (data.hasOwnProperty(key)) circles.push(L.circle([data[key].lat, data[key].lon], {radius: 1}));
             }
-        });
 
-        
+            // Put all Nodes (circles) into a Layer, so the 13.000 circles do not have to be removed and created on every button click
+            let circlesLayer = L.layerGroup(circles);
+
+            document.getElementById('toggle-nodes').addEventListener('click', () => {
+                if (mymap.hasLayer(circlesLayer)) {
+                    mymap.removeLayer(circlesLayer);
+                } else {
+                    mymap.addLayer(circlesLayer);
+                }
+            });
+        })();
     </script>
 </body>
 
