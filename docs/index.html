@@ -33,7 +33,7 @@
         </div>
         <div>
             <button id="toggle-nodes">Toggle Nodes</button>
-            <button id="astar-btn">A* Algorithm</button>
+            <button id="astar-btn" style="background-color: blue; color:white;">A* Algorithm</button>
             <button id="dijkstra-btn">Dijkstra's Algorithm</button>
         </div>
     </div>
@@ -46,7 +46,7 @@ let ab = true;
 let aid = -1;
 let bid = -1;
 const mymap = L.map('mapid').setView([49.282416676923065,-123.12200205769232], 15);   
-const line = L.polyline([], {color: 'red'}).addTo(mymap);
+const line = L.polyline([], {color: 'green'}).addTo(mymap);
 const a = L.marker([0, 0]).addTo(mymap);
 const b = L.marker([1, 1]).addTo(mymap);
 
@@ -74,14 +74,29 @@ fetch("map.json")
         document.getElementById('nodes').textContent = `${l} nodes in the map`;
     });
 
-document.getElementById('toggle-nodes').addEventListener('click', toggleNodes);
-document.getElementById('astar-btn').addEventListener('click', () => {
+//Select buttons 
+const astarButton = document.getElementById('astar-btn');
+const dijkstraButton = document.getElementById('dijkstra-btn');
+
+//Attach Event listener
+astarButton.addEventListener('click', () => {
     selectedAlgorithm = 'astar';
+    showActive(astarButton,dijkstraButton);
+    
 });
 
-document.getElementById('dijkstra-btn').addEventListener('click', () => {
+dijkstraButton.addEventListener('click', () => {
     selectedAlgorithm = 'dijkstra';
+    showActive(dijkstraButton,astarButton);
 });
+
+function showActive (active, inactive) {
+    active.style.backgroundColor = "blue";
+    active.style.color = "white";
+
+    inactive.style.backgroundColor = "#ffffff";
+    inactive.style.color = "black";
+}
 
 
 
@@ -111,7 +126,8 @@ mymap.on('click', (e) => {
     if (result) {
     let path;
     let traversedNodes;
-
+    
+    
     if (selectedAlgorithm === 'astar') {
         path = constructPathAstar(result.parent, bid);
         traversedNodes = Object.keys(result.parent).filter(nodeId => result.parent[nodeId] !== null);
@@ -189,26 +205,26 @@ function constructPath(previous, goalId) {
 }
 
 
-function toggleNodes() {
-    let circles = [];
+//IIFE To display the buttons.
+(() => {
+        let data = JSON.parse(localStorage.getItem('data'));
 
-    if (!data) {
-        data = JSON.parse(localStorage.getItem('data'));
-    }
+        let circles = [];
+        for (let key in data) {
+            if (data.hasOwnProperty(key)) circles.push(L.circle([data[key].lat, data[key].lon], {radius: 1}));
+        }
 
-    for (let key in data) {
-        if (data.hasOwnProperty(key)) circles.push(L.circle([data[key].lat, data[key].lon], {radius: 1}));
-    }
+        // Put all Nodes (circles) into a Layer, so the 13.000 circles do not have to be removed and created on every button click
+        let circlesLayer = L.layerGroup(circles);
 
-    let circlesLayer = L.layerGroup(circles);
-
-    if (mymap.hasLayer(circlesLayer)) {
-        mymap.removeLayer(circlesLayer);
-    } else {
-        mymap.addLayer(circlesLayer);
-    }
-}
-
+        document.getElementById('toggle-nodes').addEventListener('click', () => {
+            if (mymap.hasLayer(circlesLayer)) {
+                mymap.removeLayer(circlesLayer);
+            } else {
+                mymap.addLayer(circlesLayer);
+            }
+        });
+    })();
 
     </script>
 </body>
