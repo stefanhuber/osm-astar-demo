@@ -39,14 +39,17 @@
         let ab = true;
         let aid = -1;
         let bid = -1;                
-        const mymap = L.map('mapid').setView([47.5886000, 12.1804000], 16);    
-        const line = L.polyline([], {color: 'red'}).addTo(mymap);            
+
+        // const mymap = L.map('mapid').setView([47.5886000, 12.1804000], 16);   
+        const mymap = L.map('mapid').setView([49.282416676923065,-123.12200205769232], 15);   
+ 
+        const line = L.polyline([], {color: 'blue'}).addTo(mymap);            
         const a = L.marker([0, 0]).addTo(mymap);
         const b = L.marker([1, 1]).addTo(mymap);
 
         mymap.setMaxBounds([
-            [47.5644000, 12.1487000],
-            [47.6033000, 12.1898000]
+            [48.1644000, -120.1457000],
+            [49.6033000, -123.1898000]
         ]);
 
         mymap.on('click', (e) => {
@@ -64,7 +67,14 @@
 
             if (aid > 0 && bid > 0) {
                 let path = constructPath(astar(aid, bid));
+                
+                //Here we are displaying dots of the shortest path
+                path.forEach(element => {
+                    L.circle(element, {color:'green'}).addTo(mymap);
+                });
+                
                 line.setLatLngs(path);
+                
             }
         });
 
