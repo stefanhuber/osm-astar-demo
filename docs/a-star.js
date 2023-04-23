@@ -44,6 +44,8 @@ function astar(startId, goalId) {
 
         let current = queue.shift();
 
+        //adding Points that were visited to calculate the distance
+        L.circle([current.lat, current.lon], {color:'red'}).addTo(mymap);
         if (current.id == goalId) {
             return current;
         } else {
