@@ -36,85 +36,189 @@
     </div>
 
     <script>
-        let ab = true;
-        let aid = -1;
-        let bid = -1;                
+       let ab = true;
+let aid = -1;
+let bid = -1;
+const mymap = L.map('mapid').setView([47.5886000, 12.1804000], 16);
+const line = L.polyline([], {color: 'red'}).addTo(mymap);
+const a = L.marker([0, 0]).addTo(mymap);
+const b = L.marker([1, 1]).addTo(mymap);
 
-        // const mymap = L.map('mapid').setView([47.5886000, 12.1804000], 16);   
-        const mymap = L.map('mapid').setView([49.282416676923065,-123.12200205769232], 15);   
- 
-        const line = L.polyline([], {color: 'blue'}).addTo(mymap);            
-        const a = L.marker([0, 0]).addTo(mymap);
-        const b = L.marker([1, 1]).addTo(mymap);
+mymap.setMaxBounds([
+    [47.5644000, 12.1487000],
+    [47.6033000, 12.1898000]
+]);
 
-        mymap.setMaxBounds([
-            [48.1644000, -120.1457000],
-            [49.6033000, -123.1898000]
-        ]);
+mymap.on('click', (e) => {
+    let nn = nearestNeighbour(e.latlng["lat"], e.latlng["lng"]);
 
-        mymap.on('click', (e) => {
-            let nn = nearestNeighbour(e.latlng["lat"], e.latlng["lng"]); 
-            
-            if (ab) {
-                a.setLatLng(nn);
-                aid = nn.id;
-                ab = false;
-            } else {
-                b.setLatLng(nn);
-                bid = nn.id;
-                ab = true;
-            }
+    if (ab) {
+        a.setLatLng([nn.lat, nn.lng]);
+        aid = nn.id;
+        ab = false;
+    } else {
+        b.setLatLng([nn.lat, nn.lng]);
+        bid = nn.id;
+        ab = true;
+    }
 
-            if (aid > 0 && bid > 0) {
-                let path = constructPath(astar(aid, bid));
+if (aid > 0 && bid > 0) {
+    let result = dijkstra(aid, bid);
+    if (result) {
+        let path = constructPath(result.previous, bid);
+        line.setLatLngs(path);
+
+        let traversedNodes = Object.keys(result.previous).filter(nodeId => result.previous[nodeId] !== null);
+        displayTraversedNodes(traversedNodes, 3000); // Display traversed nodes for 3 seconds
+    }
+}
+});
+
+L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    attribution: '',
+    maxZoom: 17,
+    subdomains: "abc"
+}).addTo(mymap);
+
+fetch("map.json")
+    .then(response => response.json())
+    .then(data => {
+        localStorage.setItem("data", JSON.stringify(data.nodes));
+
+        let l = 0;
+        for (let k in data.nodes) l++;
+
+        document.getElementById('nodes').textContent = `${l} nodes in the map`;
+    });
+
+document.getElementById('toggle-nodes').addEventListener('click', toggleNodes);
+
+let data;
+
+function nearestNeighbour(lat, lon) {
+    data = JSON.parse(localStorage.getItem('data'));
+    let id = "";
+    let gd = 99999999;
+
+    for (let key in data) {
+        let d = distance(lat, lon, data[key].lat, data[key].lon);
+
+        if (d < gd) {
+            gd = d;
+            id = key;
+        }
+    }
+
+    return {
+        id: id,
+        data: data[id],
+        lat: data[id].lat,
+        lng: data[id].lon
+    };
+}
+
+function displayTraversedNodes(traversedNodes, duration) {
+    let circles = [];
+    for (let nodeId of traversedNodes) {
+        let nodeCircle = L.circle([data[nodeId].lat, data[nodeId].lon], {radius: 1, color: 'red'}).addTo(mymap);
+        circles.push(nodeCircle);
+    }
+
+    setTimeout(() => {
+        for (let circle of circles) {
+            mymap.removeLayer(circle);
+        }
+    }, duration);
+}
+function dijkstra(startId, goalId) {
+    data = JSON.parse(localStorage.getItem('data'));
+
+    let dist = {};
+    let previous = {};
+    let unvisited = new Set(Object.keys(data));
+
+    for (let key in data) {
+        dist[key] = Infinity;
+        previous[key] = null;
+    }
+    dist[startId] = 0;
+
+    while (unvisited.size > 0) {
+        let currentId = getClosestNode(dist, unvisited);
+        unvisited.delete(currentId);
+
+        if (currentId == goalId) {
+            return {previous: previous};
+        }
+
+        for (let neighbor of data[currentId].con) {
+            let alt = dist[currentId] + distance(data[currentId].lat, data[currentId].lon, data[neighbor].lat, data[neighbor].lon);
+
+            if (alt < dist[neighbor]) {
+                dist[neighbor] = alt;
                 
-                //Here we are displaying dots of the shortest path
-                path.forEach(element => {
-                    L.circle(element, {color:'green'}).addTo(mymap);
-                });
-                
-                line.setLatLngs(path);
-                
+				                previous[neighbor] = currentId;
             }
-        });
+        }
+    }
 
-        L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            attribution: '',
-            maxZoom: 17,
-            subdomains: "abc"
-        }).addTo(mymap);
+    return null;
+}
 
-        fetch("map.json")
-            .then(response => response.json())
-            .then(data => {
-                localStorage.setItem("data", JSON.stringify(data.nodes));
+function constructPath(previous, goalId) {
+    let path = [];
+    let currentNode = goalId;
 
-                let l = 0;
-                for (let k in data.nodes) l++;
+    while (currentNode) {
+        path.unshift([data[currentNode].lat, data[currentNode].lon]);
+        currentNode = previous[currentNode];
+    }
 
-                document.getElementById('nodes').textContent = `${l} nodes in the map`;                
-            });
+    return path;
+}
+
+function getClosestNode(dist, unvisited) {
+    let minDist = Infinity;
+    let closestNode = null;
+
+    for (let node of unvisited) {
+        if (dist[node] < minDist) {
+            minDist = dist[node];
+            closestNode = node;
+        }
+    }
+
+    return closestNode;
+}
+
+function distance(lat1, lon1, lat2, lon2) {
+    let d1 = Math.abs(lat1 - lat2);
+    let d2 = Math.abs(lon1 - lon2);
+    return d1 + d2;
+}
 
 
-        (() => {
-            let data = JSON.parse(localStorage.getItem('data'));
+function toggleNodes() {
+    let circles = [];
 
-            let circles = [];
-            for (let key in data) {
-                if (data.hasOwnProperty(key)) circles.push(L.circle([data[key].lat, data[key].lon], {radius: 1}));
-            }
+    if (!data) {
+        data = JSON.parse(localStorage.getItem('data'));
+    }
 
-            // Put all Nodes (circles) into a Layer, so the 13.000 circles do not have to be removed and created on every button click
-            let circlesLayer = L.layerGroup(circles);
+    for (let key in data) {
+        if (data.hasOwnProperty(key)) circles.push(L.circle([data[key].lat, data[key].lon], {radius: 1}));
+    }
 
-            document.getElementById('toggle-nodes').addEventListener('click', () => {
-                if (mymap.hasLayer(circlesLayer)) {
-                    mymap.removeLayer(circlesLayer);
-                } else {
-                    mymap.addLayer(circlesLayer);
-                }
-            });
-        })();
+    let circlesLayer = L.layerGroup(circles);
+
+    if (mymap.hasLayer(circlesLayer)) {
+        mymap.removeLayer(circlesLayer);
+    } else {
+        mymap.addLayer(circlesLayer);
+    }
+}
+
+
     </script>
 </body>
 
