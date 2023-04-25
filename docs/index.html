@@ -46,7 +46,7 @@ let ab = true;
 let aid = -1;
 let bid = -1;
 const mymap = L.map('mapid').setView([49.282416676923065,-123.12200205769232], 15);   
-const line = L.polyline([], {color: 'green'}).addTo(mymap);
+const line = L.polyline([], {color: 'black', weight:10}).addTo(mymap);
 const a = L.marker([0, 0]).addTo(mymap);
 const b = L.marker([1, 1]).addTo(mymap);
 
@@ -130,12 +130,17 @@ mymap.on('click', (e) => {
     
     if (selectedAlgorithm === 'astar') {
         path = constructPathAstar(result.parent, bid);
-        traversedNodes = Object.keys(result.parent).filter(nodeId => result.parent[nodeId] !== null);
+        traversedNodes = [];
+        while (result.parent) {
+            traversedNodes.push(result.id);
+            result = result.parent;
+        }
     } else {
         path = constructPath(result.previous, bid);
         traversedNodes = Object.keys(result.previous).filter(nodeId => result.previous[nodeId] !== null);
     }
 
+    
     line.setLatLngs(path);
     displayTraversedNodes(traversedNodes, 3000); // Display traversed nodes for 3 seconds
 }
@@ -150,7 +155,7 @@ function displayTraversedNodes(traversedNodes, duration) {
 
     for (let nodeId of traversedNodes) {
         if (data[nodeId]) {
-            let nodeCircle = L.circle([data[nodeId].lat, data[nodeId].lon], {radius: 1, color: 'red'}).addTo(mymap);
+            let nodeCircle = L.circle([data[nodeId].lat, data[nodeId].lon], {radius: 2, color: 'yellow'}).addTo(mymap);
             circles.push(nodeCircle);
         }
     }

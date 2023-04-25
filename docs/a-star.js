@@ -35,7 +35,7 @@ function astar(startId, goalId) {
     let iterations = 0;
 
     let nodes = Object.keys(data).length;
-
+    let circles = [];
     while (true) {
         if (++iterations > nodes) {
             console.info('No path between the two selected nodes');
@@ -45,8 +45,16 @@ function astar(startId, goalId) {
         let current = queue.shift();
 
         //adding Points that were visited to calculate the distance
-        L.circle([current.lat, current.lon], {color:'red'}).addTo(mymap);
+        circles.push(L.circle([current.lat, current.lon], {color:'red', radius:3}).addTo(mymap));
+
         if (current.id == goalId) {
+
+            setTimeout(() => {
+                for (let circle of circles) {
+                    mymap.removeLayer(circle);
+                }
+            }, 3000);
+
             return current;
         } else {
             visited.add(current.id);
