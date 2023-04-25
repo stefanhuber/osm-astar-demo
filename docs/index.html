@@ -1,111 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Routing</title>
+    <link
+        rel="stylesheet"
+        href="./main.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+      integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+      integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+      crossorigin=""
+    ></script>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
-        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-        crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
-        integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
-        crossorigin=""></script>
-
-    <script src="a-star.js"></script>
-
-    <style>
-        #mapid {
-            height: 90vh;
-        }
-    </style>
-</head>
-<body>
-
-    <div id="mapid"></div>
-
+  </head>
+  <body>
+    <section class="global">
     <div id="data">
-        <div id="nodes">
 
-        </div>
         <div>
-            <button id="toggle-nodes">Toggle Nodes</button>
+            <div class="actions">
+                <button id="toggle-nodes">Toggle Nodes</button>
+                <button id="astar-btn" class="active">
+                A* Algorithm
+                </button>
+                <button id="dijkstra-btn">Dijkstra's Algorithm</button>
+            </div>
+            <div>
+                <label for="heuristic-select">Heuristic:</label>
+                <select id="heuristic-select">
+                <option value="euclidean">Euclidean</option>
+                <option value="manhattan">Manhattan</option>
+                <option value="diagonal">Diagonal</option>
+                <option value="octile">Octile</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="nodes-info">
+            <div id="nodes"></div>
+            <div id="visited-nodes"></div>
         </div>
     </div>
-
-    <script>
-        let ab = true;
-        let aid = -1;
-        let bid = -1;                
-        const mymap = L.map('mapid').setView([47.5886000, 12.1804000], 16);    
-        const line = L.polyline([], {color: 'red'}).addTo(mymap);            
-        const a = L.marker([0, 0]).addTo(mymap);
-        const b = L.marker([1, 1]).addTo(mymap);
-
-        mymap.setMaxBounds([
-            [47.5644000, 12.1487000],
-            [47.6033000, 12.1898000]
-        ]);
-
-        mymap.on('click', (e) => {
-            let nn = nearestNeighbour(e.latlng["lat"], e.latlng["lng"]); 
-            
-            if (ab) {
-                a.setLatLng(nn);
-                aid = nn.id;
-                ab = false;
-            } else {
-                b.setLatLng(nn);
-                bid = nn.id;
-                ab = true;
-            }
-
-            if (aid > 0 && bid > 0) {
-                let path = constructPath(astar(aid, bid));
-                line.setLatLngs(path);
-            }
-        });
-
-        L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            attribution: '',
-            maxZoom: 17,
-            subdomains: "abc"
-        }).addTo(mymap);
-
-        fetch("map.json")
-            .then(response => response.json())
-            .then(data => {
-                localStorage.setItem("data", JSON.stringify(data.nodes));
-
-                let l = 0;
-                for (let k in data.nodes) l++;
-
-                document.getElementById('nodes').textContent = `${l} nodes in the map`;                
-            });
-
-
-        (() => {
-            let data = JSON.parse(localStorage.getItem('data'));
-
-            let circles = [];
-            for (let key in data) {
-                if (data.hasOwnProperty(key)) circles.push(L.circle([data[key].lat, data[key].lon], {radius: 1}));
-            }
-
-            // Put all Nodes (circles) into a Layer, so the 13.000 circles do not have to be removed and created on every button click
-            let circlesLayer = L.layerGroup(circles);
-
-            document.getElementById('toggle-nodes').addEventListener('click', () => {
-                if (mymap.hasLayer(circlesLayer)) {
-                    mymap.removeLayer(circlesLayer);
-                } else {
-                    mymap.addLayer(circlesLayer);
-                }
-            });
-        })();
-    </script>
-</body>
-
+    <div id="mapid"></div>
+    </section>
+    
+    <script src="a-star.js"></script>
+    <script src="dijkstra.js"></script>
+    <script src="main.js"></script>
+  </body>
 </html>
