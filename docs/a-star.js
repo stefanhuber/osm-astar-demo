@@ -161,6 +161,8 @@ function distance(lat1, lon1, lat2, lon2) {
    * @param {array} circles 
    */
 function removeDots(circles) {
+
+    nodesVisited.textContent = `${circles.length} nodes visited`;
     setTimeout(() => {
         for (let circle of circles) {
             mymap.removeLayer(circle);
