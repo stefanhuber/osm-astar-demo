@@ -1,6 +1,5 @@
 # A* Routing Demo
 
-> [Demo](https://stefanhuber.github.io/osm-astar-demo/)
 
 ## Usage
 
