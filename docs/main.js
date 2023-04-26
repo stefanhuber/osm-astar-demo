@@ -40,33 +40,42 @@ fetch("map.json")
 const astarButton = document.getElementById("astar-btn");
 const dijkstraButton = document.getElementById("dijkstra-btn");
 const idijkstraButton = document.getElementById("idijkstra-btn");
+const gbfsButton = document.getElementById("gbfs-btn");
 
 //Attach Event listener
 astarButton.addEventListener("click", () => {
   selectedAlgorithm = "astar";
-  showActive(astarButton, dijkstraButton, idijkstraButton);
+  showActive(astarButton, dijkstraButton, idijkstraButton, gbfsButton);
   heuristicSelect.style.display = "inline-block";
   recalculateRoute();
 });
 
 dijkstraButton.addEventListener("click", () => {
   selectedAlgorithm = "dijkstra";
-  showActive(dijkstraButton, astarButton, idijkstraButton);
+  showActive(dijkstraButton, astarButton, idijkstraButton, gbfsButton);
   heuristicSelect.style.display = "none";
   recalculateRoute();
 });
 
 idijkstraButton.addEventListener("click", () => {
   selectedAlgorithm = "idijkstra";
-  showActive(idijkstraButton, dijkstraButton, astarButton);
+  showActive(idijkstraButton, dijkstraButton, astarButton, gbfsButton);
   heuristicSelect.style.display = "none";
   recalculateRoute();
 });
 
-function showActive(active, inactive, inactive2) {
+gbfsButton.addEventListener("click", () => {
+  selectedAlgorithm = "gbfs";
+  showActive(gbfsButton, idijkstraButton, dijkstraButton, astarButton);
+  heuristicSelect.style.display = "none";
+  recalculateRoute();
+});
+
+function showActive(active, inactive, inactive2, inactive3) {
   active.classList.add("active");
   inactive.classList.remove("active");
   inactive2.classList.remove("active");
+  inactive3.classList.remove("active");
 }
 
 mymap.on("click", (e) => {
@@ -190,8 +199,10 @@ function recalculateRoute() {
       result = astar(aid, bid);
     } else if (selectedAlgorithm === "dijkstra") {
       result = dijkstra(aid, bid);
+    } else if (selectedAlgorithm === "gbfs") {
+      result = greedyBFS(aid, bid); //improved_dijkstra(aid, bid); //
     } else {
-      result = improved_dijkstra(aid, bid); //improved_dijkstra(aid, bid); //
+      result = improved_dijkstra(aid, bid);
     }
     const end = performance.now();
     console.log(`Execution time: ${end - start} ms`);
