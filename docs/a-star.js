@@ -154,6 +154,10 @@ function distance(lat1, lon1, lat2, lon2) {
       return diagonalDistance(lat1, lon1, lat2, lon2);
     case "octile":
       return octileDistance(lat1, lon1, lat2, lon2);
+    case "cube":
+      return Math.pow(euclideanDistance(lat1, lon1, lat2, lon2), 3);
+    case "cuberoot":
+      return Math.cbrt(euclideanDistance(lat1, lon1, lat2, lon2));
     case "euclidean":
     default:
       return euclideanDistance(lat1, lon1, lat2, lon2);
