@@ -7,11 +7,12 @@ const mymap = L.map("mapid").setView(
   [49.282416676923065, -123.12200205769232],
   15
 );
-const line = L.polyline([], { color:'black', weight:10}).addTo(mymap);
+const line = L.polyline([], { color: "black", weight: 10 }).addTo(mymap);
 const a = L.marker([0, 0]).addTo(mymap);
 const b = L.marker([1, 1]).addTo(mymap);
 const nodes = document.getElementById("nodes");
 const nodesVisited = document.getElementById("visited-nodes");
+const perform = document.getElementById("performance");
 
 mymap.setMaxBounds([
   [48.1644, -120.1457],
@@ -55,7 +56,6 @@ dijkstraButton.addEventListener("click", () => {
 });
 
 function showActive(active, inactive) {
-
   active.classList.add("active");
   inactive.classList.remove("active");
 }
@@ -73,7 +73,6 @@ mymap.on("click", (e) => {
     ab = true;
   }
   recalculateRoute();
-
 });
 
 let traversedNodeCircles = [];
@@ -154,23 +153,19 @@ function constructPath(previous, goalId) {
   let circles = [];
   for (let key in data) {
     if (data.hasOwnProperty(key))
-      circles.push(
-        L.circle([data[key].lat, data[key].lon], { radius: 1 })
-      );
+      circles.push(L.circle([data[key].lat, data[key].lon], { radius: 1 }));
   }
 
   // Put all Nodes (circles) into a Layer, so the 13.000 circles do not have to be removed and created on every button click
   let circlesLayer = L.layerGroup(circles);
 
-  document
-    .getElementById("toggle-nodes")
-    .addEventListener("click", () => {
-      if (mymap.hasLayer(circlesLayer)) {
-        mymap.removeLayer(circlesLayer);
-      } else {
-        mymap.addLayer(circlesLayer);
-      }
-    });
+  document.getElementById("toggle-nodes").addEventListener("click", () => {
+    if (mymap.hasLayer(circlesLayer)) {
+      mymap.removeLayer(circlesLayer);
+    } else {
+      mymap.addLayer(circlesLayer);
+    }
+  });
 })();
 const heuristicSelect = document.getElementById("heuristic-select");
 heuristicSelect.addEventListener("change", (e) => {
@@ -181,11 +176,15 @@ heuristicSelect.addEventListener("change", (e) => {
 function recalculateRoute() {
   if (aid > 0 && bid > 0) {
     let result;
+    const start = performance.now();
     if (selectedAlgorithm === "astar") {
       result = astar(aid, bid);
     } else {
-      result = dijkstra(aid, bid);
+      result = dijkstra(aid, bid); //improved_dijkstra(aid, bid); //
     }
+    const end = performance.now();
+    console.log(`Execution time: ${end - start} ms`);
+    perform.textContent = `Execution time: ${end - start} ms`;
 
     if (result) {
       let path;

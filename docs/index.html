@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Routing</title>
-    <link
-        rel="stylesheet"
-        href="./main.css"
-    />
+    <link rel="stylesheet" href="./main.css" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
@@ -20,39 +17,36 @@
       integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
       crossorigin=""
     ></script>
-
   </head>
   <body>
     <section class="global">
-    <div id="data">
-
+      <div id="data">
         <div>
-            <div class="actions">
-                <button id="toggle-nodes">Toggle Nodes</button>
-                <button id="astar-btn" class="active">
-                A* Algorithm
-                </button>
-                <button id="dijkstra-btn">Dijkstra's Algorithm</button>
-            </div>
-            <div>
-                <label for="heuristic-select">Heuristic:</label>
-                <select id="heuristic-select">
-                <option value="euclidean">Euclidean</option>
-                <option value="manhattan">Manhattan</option>
-                <option value="diagonal">Diagonal</option>
-                <option value="octile">Octile</option>
-                </select>
-            </div>
+          <div class="actions">
+            <button id="toggle-nodes">Toggle Nodes</button>
+            <button id="astar-btn" class="active">A* Algorithm</button>
+            <button id="dijkstra-btn">Dijkstra's Algorithm</button>
+          </div>
+          <div>
+            <label for="heuristic-select">Heuristic:</label>
+            <select id="heuristic-select">
+              <option value="euclidean">Euclidean</option>
+              <option value="manhattan">Manhattan</option>
+              <option value="diagonal">Diagonal</option>
+              <option value="octile">Octile</option>
+            </select>
+          </div>
         </div>
 
         <div id="nodes-info">
-            <div id="nodes"></div>
-            <div id="visited-nodes"></div>
+          <div id="nodes"></div>
+          <div id="visited-nodes"></div>
+          <div id="performance"></div>
         </div>
-    </div>
-    <div id="mapid"></div>
+      </div>
+      <div id="mapid"></div>
     </section>
-    
+
     <script src="a-star.js"></script>
     <script src="dijkstra.js"></script>
     <script src="main.js"></script>
