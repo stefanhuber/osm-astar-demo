@@ -150,15 +150,14 @@ function distance(lat1, lon1, lat2, lon2) {
   switch (heuristic) {
     case "manhattan":
       return manhattanDistance(lat1, lon1, lat2, lon2);
-    case "diagonal":
-      return diagonalDistance(lat1, lon1, lat2, lon2);
-    case "octile":
-      return octileDistance(lat1, lon1, lat2, lon2);
+    case "zero":
+      return 0;
     case "cube":
       return Math.pow(euclideanDistance(lat1, lon1, lat2, lon2), 3);
-    case "cuberoot":
-      return Math.cbrt(euclideanDistance(lat1, lon1, lat2, lon2));
+    case "sometimegreater":
+      return (Math.random() + 1) * euclideanDistance(lat1, lon1, lat2, lon2);
     case "euclidean":
+      return euclideanDistance(lat1, lon1, lat2, lon2);
     default:
       return euclideanDistance(lat1, lon1, lat2, lon2);
   }
@@ -187,16 +186,16 @@ function manhattanDistance(lat1, lon1, lat2, lon2) {
   return d1 + d2;
 }
 
-function diagonalDistance(lat1, lon1, lat2, lon2) {
-  let dLat = Math.abs(lat2 - lat1);
-  let dLon = Math.abs(lon2 - lon1);
-  return dLat + dLon + (Math.sqrt(2) - 2) * Math.min(dLat, dLon);
-}
+// function diagonalDistance(lat1, lon1, lat2, lon2) {
+//   let dLat = Math.abs(lat2 - lat1);
+//   let dLon = Math.abs(lon2 - lon1);
+//   return dLat + dLon + (Math.sqrt(2) - 2) * Math.min(dLat, dLon);
+// }
 
-function octileDistance(lat1, lon1, lat2, lon2) {
-  let dLat = Math.abs(lat2 - lat1);
-  let dLon = Math.abs(lon2 - lon1);
-  let D = 1;
-  let D2 = Math.sqrt(2);
-  return D * (dLat + dLon) + (D2 - 2 * D) * Math.min(dLat, dLon);
-}
+// function octileDistance(lat1, lon1, lat2, lon2) {
+//   let dLat = Math.abs(lat2 - lat1);
+//   let dLon = Math.abs(lon2 - lon1);
+//   let D = 1;
+//   let D2 = Math.sqrt(2);
+//   return D * (dLat + dLon) + (D2 - 2 * D) * Math.min(dLat, dLon);
+// }
