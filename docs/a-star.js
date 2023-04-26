@@ -44,7 +44,7 @@ function astar(startId, goalId) {
   let nodes = Object.keys(data).length;
 
   let circles = [];
- 
+
   while (true) {
     if (++iterations > nodes) {
       console.info("No path between the two selected nodes");
@@ -55,11 +55,15 @@ function astar(startId, goalId) {
     let current = queue.shift();
 
     //adding Points that were visited to calculate the distance
-    circles.push(L.circle([current.lat, current.lon], {color:'red', radius:3}).addTo(mymap));
+    circles.push(
+      L.circle([current.lat, current.lon], { color: "red", radius: 3 }).addTo(
+        mymap
+      )
+    );
 
     if (current.id == goalId) {
-        removeDots(circles);
-        return current;
+      removeDots(circles);
+      return current;
     } else {
       visited.add(current.id);
       let children = getChildren(current, goalId, data);
@@ -107,9 +111,9 @@ function constructPath(node) {
 
 /**
  * Obtain the children of the parent node
- * @param {Object} parent 
- * @param {int} goalId 
- * @param {Object} data 
+ * @param {Object} parent
+ * @param {int} goalId
+ * @param {Object} data
  * @returns An array with all childrens for this the give node
  */
 function getChildren(parent, goalId, data) {
@@ -134,42 +138,41 @@ function getChildren(parent, goalId, data) {
 
 /**
  * Calculate the heuristic distance from positio A to Positio B
- * @param {double} lat1 
- * @param {double} lon1 
- * @param {double} lat2 
- * @param {double} lon2 
- * @returns 
+ * @param {double} lat1
+ * @param {double} lon1
+ * @param {double} lat2
+ * @param {double} lon2
+ * @returns
  */
 function distance(lat1, lon1, lat2, lon2) {
-    const heuristic = localStorage.getItem('heuristic') || 'euclidean';
-  
-    switch (heuristic) {
-      case 'manhattan':
-        return manhattanDistance(lat1, lon1, lat2, lon2);
-      case 'diagonal':
-        return diagonalDistance(lat1, lon1, lat2, lon2);
-      case 'octile':
-        return octileDistance(lat1, lon1, lat2, lon2);
-      case 'euclidean':
-      default:
-        return euclideanDistance(lat1, lon1, lat2, lon2);
-    }
+  const heuristic = localStorage.getItem("heuristic") || "euclidean";
+
+  switch (heuristic) {
+    case "manhattan":
+      return manhattanDistance(lat1, lon1, lat2, lon2);
+    case "diagonal":
+      return diagonalDistance(lat1, lon1, lat2, lon2);
+    case "octile":
+      return octileDistance(lat1, lon1, lat2, lon2);
+    case "euclidean":
+    default:
+      return euclideanDistance(lat1, lon1, lat2, lon2);
   }
-
-  /**
-   * Remove Dots Created on this implementation
-   * @param {array} circles 
-   */
-function removeDots(circles) {
-
-    nodesVisited.textContent = `${circles.length} nodes visited`;
-    setTimeout(() => {
-        for (let circle of circles) {
-            mymap.removeLayer(circle);
-        }
-    }, 3000);
 }
-  
+
+/**
+ * Remove Dots Created on this implementation
+ * @param {array} circles
+ */
+function removeDots(circles) {
+  nodesVisited.textContent = `${circles.length} nodes visited`;
+  setTimeout(() => {
+    for (let circle of circles) {
+      mymap.removeLayer(circle);
+    }
+  }, 3000);
+}
+
 function euclideanDistance(lat1, lon1, lat2, lon2) {
   return Math.sqrt(Math.pow(lat2 - lat1, 2) + Math.pow(lon2 - lon1, 2));
 }

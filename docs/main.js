@@ -39,25 +39,34 @@ fetch("map.json")
 //Select buttons
 const astarButton = document.getElementById("astar-btn");
 const dijkstraButton = document.getElementById("dijkstra-btn");
+const idijkstraButton = document.getElementById("idijkstra-btn");
 
 //Attach Event listener
 astarButton.addEventListener("click", () => {
   selectedAlgorithm = "astar";
-  showActive(astarButton, dijkstraButton);
+  showActive(astarButton, dijkstraButton, idijkstraButton);
   heuristicSelect.style.display = "inline-block";
   recalculateRoute();
 });
 
 dijkstraButton.addEventListener("click", () => {
   selectedAlgorithm = "dijkstra";
-  showActive(dijkstraButton, astarButton);
+  showActive(dijkstraButton, astarButton, idijkstraButton);
   heuristicSelect.style.display = "none";
   recalculateRoute();
 });
 
-function showActive(active, inactive) {
+idijkstraButton.addEventListener("click", () => {
+  selectedAlgorithm = "idijkstra";
+  showActive(idijkstraButton, dijkstraButton, astarButton);
+  heuristicSelect.style.display = "none";
+  recalculateRoute();
+});
+
+function showActive(active, inactive, inactive2) {
   active.classList.add("active");
   inactive.classList.remove("active");
+  inactive2.classList.remove("active");
 }
 
 mymap.on("click", (e) => {
@@ -179,8 +188,10 @@ function recalculateRoute() {
     const start = performance.now();
     if (selectedAlgorithm === "astar") {
       result = astar(aid, bid);
+    } else if (selectedAlgorithm === "dijkstra") {
+      result = dijkstra(aid, bid);
     } else {
-      result = dijkstra(aid, bid); //improved_dijkstra(aid, bid); //
+      result = improved_dijkstra(aid, bid); //improved_dijkstra(aid, bid); //
     }
     const end = performance.now();
     console.log(`Execution time: ${end - start} ms`);
@@ -200,7 +211,6 @@ function recalculateRoute() {
         traversedNodes = Object.keys(result.previous).filter(
           (nodeId) => result.previous[nodeId] !== null
         );
-        nodesVisited.textContent = `${traversedNodes.length} nodes visitedados`;
       }
 
       line.setLatLngs(path);
